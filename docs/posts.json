@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-18T21:59:09+03:00",
+  "updated_at": "2026-09-18T22:19:44+03:00",
   "channel": {
     "name": "DemoTest",
     "url": "https://t.me/Testovuj"
@@ -15,17 +15,6 @@
       "tags": [],
       "kind": "text",
       "url": "https://t.me/Testovuj/509",
-      "src": ""
-    },
-    {
-      "id": 500,
-      "date": "2026-09-17",
-      "time": "13:01",
-      "title": "Согласен",
-      "preview": "",
-      "tags": [],
-      "kind": "text",
-      "url": "https://t.me/Testovuj/500",
       "src": ""
     },
     {
