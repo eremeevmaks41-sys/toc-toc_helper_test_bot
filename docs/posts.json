@@ -1,11 +1,22 @@
 {
   "version": 1,
-  "updated_at": "2026-09-18T21:35:02+03:00",
+  "updated_at": "2026-09-18T21:47:00+03:00",
   "channel": {
     "name": "DemoTest",
     "url": "https://t.me/Testovuj"
   },
   "posts": [
+    {
+      "id": 509,
+      "date": "2026-09-18",
+      "time": "21:38",
+      "title": "конечно я согласен",
+      "preview": "",
+      "tags": [],
+      "kind": "text",
+      "url": "https://t.me/Testovuj/509",
+      "src": ""
+    },
     {
       "id": 500,
       "date": "2026-09-17",
