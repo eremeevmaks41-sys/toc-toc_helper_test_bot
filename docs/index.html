@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<title>Оглавление</title>
+<!-- ═════════════════════════════════════════════════════════════════
+     «Оглавление телеграм-канала» · мини-апп
+     Одна страница, без внешних зависимостей. Хостинг: GitHub Pages.
+     Данные: docs/posts.json (обновляется автоматически Actions).
+     Настройки: docs/config.js  (канал, цвет, лицензия).
+     ═════════════════════════════════════════════════════════════════ -->
+<style>
+:root{
+  --bg:#f6f1e7; --card:#fffdf8; --card2:#f1ead9; --text:#2b2417; --muted:#8a7f68;
+  --accent:#9a6b15; --accent-soft:#efe2c6; --chip:#efe8d8; --chip-active:#9a6b15;
+  --chip-active-text:#fffdf8; --line:#e6dcc4; --search:#fffdf8; --shadow:0 2px 10px rgba(80,60,20,.07);
+}
+html[data-theme="dark"]{
+  --bg:#1c1a16; --card:#26231d; --card2:#2e2a22; --text:#ece5d5; --muted:#9a917d;
+  --accent:#d8b25e; --accent-soft:#3a3428; --chip:#2e2a22; --chip-active:#d8b25e;
+  --chip-active-text:#1c1a16; --line:#3a352b; --search:#26231d; --shadow:0 2px 10px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  font-size:15px; line-height:1.45;
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:640px;margin:0 auto;padding:14px 14px calc(30px + env(safe-area-inset-bottom))}
+
+/* ── шапка ── */
+header{display:flex;align-items:center;gap:12px;padding:10px 2px 14px}
+.logo{
+  width:46px;height:46px;border-radius:14px;flex:0 0 auto;
+  background:var(--accent-soft);display:flex;align-items:center;justify-content:center;
+  font-size:24px;user-select:none;
+}
+.h-name{font-size:19px;font-weight:700;letter-spacing:.1px}
+.h-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.h-share{
+  margin-left:auto;flex:0 0 auto;width:36px;height:36px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--line);background:transparent;color:var(--accent);
+  border-radius:11px;font-size:16px;line-height:1;cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.h-share:active{background:var(--accent-soft);transform:scale(.94)}
+.h-open{
+  flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;
+  color:var(--accent);border:1.5px solid var(--accent);border-radius:11px;padding:7px 12px;
+  user-select:none;-webkit-user-select:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.h-open:active{background:var(--accent-soft);transform:scale(.96)}
+
+/* ── поиск ── */
+.search{position:relative;margin-bottom:10px}
+.search input{
+  width:100%;padding:11px 38px 11px 38px;border-radius:13px;border:1.5px solid var(--line);
+  background:var(--search);color:var(--text);font-size:15px;outline:none;
+}
+.search input:focus{border-color:var(--accent)}
+/* iOS рисует свой крестик для type=search — прячем: у нас свой */
+.search input{-webkit-appearance:none;appearance:none}
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.55;font-size:15px}
+.search .clr{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  border:0;background:transparent;color:var(--muted);font-size:17px;padding:6px 8px;cursor:pointer;display:none;
+  transition:color .12s ease, transform .12s ease;
+}
+.search .clr:active{color:var(--accent);transform:translateY(-50%) scale(.88)}
+
+/* ── темы (чипсы) ── */
+.chips{
+  display:flex;gap:7px;overflow-x:auto;padding:2px 2px 12px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;border:1.5px solid var(--line);background:var(--chip);color:var(--text);
+  border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
+  user-select:none;-webkit-user-select:none;
+  transition:transform .12s ease, border-color .12s ease, color .12s ease, background .12s ease;
+}
+.chip:active{transform:scale(.93)}
+.chip.active{background:var(--chip-active);color:var(--chip-active-text);border-color:var(--chip-active)}
+
+/* ── даты и карточки ── */
+.day{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 8px}
+.card{
+  display:block;color:inherit;text-decoration:none; /* карточка — настоящая ссылка <a> */
+  background:var(--card);border:1px solid var(--line);border-radius:15px;
+  padding:12px 14px;margin-bottom:9px;box-shadow:var(--shadow);cursor:pointer;
+  transition:background .12s ease, transform .12s ease;
+}
+.card:active,.card.pressed{background:var(--card2);transform:scale(.985)}
+.c-top{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.c-time{font-size:12px;color:var(--muted);flex:0 0 auto}
+.c-title{font-size:15.5px;font-weight:700;line-height:1.35}
+.c-prev{font-size:13.8px;color:var(--muted);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c-tags{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+.c-tag{font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:7px;padding:2.5px 8px;font-weight:600}
+/* ── длинные ссылки не ломают сетку (Task 124, репорт босса 15.9.2026:
+   посты-«голые ссылки» раздували Ленту шире экрана на телефоне) ── */
+html,body{overflow-x:hidden}
+header>div{min-width:0}
+.c-title,.c-prev,.c-tag,.t-title,.h-name{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+
+/* ── переключатель вида: Оглавление / Лента ── */
+.views{display:flex;background:var(--chip);border:1.5px solid var(--line);border-radius:12px;padding:3px;margin-bottom:11px}
+.views button{
+  flex:1;border:0;background:transparent;color:var(--muted);
+  font-size:13.5px;font-weight:700;padding:8px 0;border-radius:9px;cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  transition:color .12s ease, background .12s ease;
+}
+.views button:active{color:var(--text)}
+.views button.active{background:var(--chip-active);color:var(--chip-active-text)}
+
+/* ── сетка карточек (корень оглавления и разделы) ── */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px}
+.tcard{
+  background:var(--card);border:1px solid var(--line);border-radius:15px;
+  padding:14px;cursor:pointer;box-shadow:var(--shadow);
+  user-select:none;-webkit-user-select:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.tcard:active{background:var(--card2);transform:scale(.96)}
+.t-ico{font-size:25px;line-height:1}
+.t-title{font-size:14.5px;font-weight:700;margin-top:7px;line-height:1.3}
+.t-n{font-size:12px;color:var(--muted);margin-top:3px}
+.slabel{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:15px 2px 9px}
+.tagwrap{display:flex;flex-wrap:wrap;gap:7px;margin:2px 2px 8px}
+.back{
+  display:block;width:100%;margin:2px 0 10px;padding:10px;border-radius:12px;
+  border:1.5px solid var(--line);background:var(--chip);color:var(--text);
+  font-size:13.5px;font-weight:700;cursor:pointer;text-align:center;
+  user-select:none;-webkit-user-select:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.back:active{background:var(--accent-soft);transform:scale(.98)}
+
+
+/* ── состояния ── */
+.more{
+  display:block;width:100%;margin:14px 0 4px;padding:12px;border-radius:13px;
+  border:1.5px dashed var(--accent);background:transparent;color:var(--accent);
+  font-size:14.5px;font-weight:700;cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.more:active{background:var(--accent-soft);transform:scale(.98)}
+.state{padding:46px 20px;text-align:center;color:var(--muted)}
+.state .big{font-size:40px;margin-bottom:10px}
+.state .t{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.banner{
+  display:none;background:#fdeaea;color:#8a2020;border:1px solid #f2c4c4;border-radius:12px;
+  padding:10px 13px;font-size:13px;margin-bottom:10px;
+}
+html[data-theme="dark"] .banner{background:#3a2424;color:#e8b0b0;border-color:#5a3434}
+.banner a{color:inherit;font-weight:700;text-decoration:underline}
+
+/* ── футер (водяной знак) ── */
+footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px;line-height:1.7}
+footer b{color:var(--text);font-weight:600}
+footer .lic{font-size:11px;opacity:.75}
+</style>
+<!-- ═══ МОСТ TELEGRAM — официальный и ОБЯЗАТЕЛЬНЫЙ (async) ═══
+     core.telegram.org/bots/webapps → «Initializing Mini Apps»: скрипт
+     telegram-web-app.js подключается в <head>. Без него
+     window.Telegram.WebApp не создаётся у части клиентов (iPhone и др.) —
+     тап по карточке поста молча ничего не открывает. Ровно это было
+     причиной «не тапаются карточки поста» (12.9.2026).
+     АТРИБУТ async (кейс босса «открывалось быстрее»): страница НЕ ждёт
+     скрипт с telegram.org и рисуется мгновенно, мост доезжает параллельно;
+     ядро ниже само подхватывает его готовность (adoptBridge + подписка
+     load/error + страховочный таймер). ═══ -->
+<script async src="https://telegram.org/js/telegram-web-app.js?63"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo" id="logo">📖</div>
+    <div>
+      <div class="h-name" id="hName">Оглавление</div>
+      <div class="h-sub" id="hSub">каталог постов канала</div>
+    </div>
+    <button class="h-share" id="hShare" type="button" aria-label="Скопировать ссылку на оглавление" title="Скопировать ссылку">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </button>
+    <a class="h-open" id="hOpen" href="#">Канал</a>
+  </header>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="search">
+    <span class="ico">🔍</span>
+    <input id="q" type="search" placeholder="Поиск по оглавлению…" autocomplete="off">
+    <button class="clr" id="clr" aria-label="Очистить">✕</button>
+  </div>
+
+  <div class="views" id="views" style="display:none">
+    <button id="vToc" type="button">📖 Оглавление</button>
+    <button id="vFeed" type="button">🕘 Лента</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div id="list"></div>
+  <div id="state" class="state" style="display:none"></div>
+
+  <footer>
+    <div><b>Оглавление</b> · каталог постов Telegram-канала · <span id="ver">v56-ru</span></div>
+    <div class="lic" id="licLine"></div><div class="lic"><a id="refLine" href="#" target="_blank" rel="noopener" style="display:none;color:inherit"></a></div>
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   «Оглавление телеграм-канала» · ядро мини-аппа
+   Порядок работы: config.js → лицензия → posts.json → рендер.
+   Править этот файл не нужно: всё настраивается в config.js.
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+var SALT = 'SODERZHANIE-v1-7f3a';               // служебная соль лицензии
+var PAGE_SIZE = 100;                            // карточек за одну подгрузку
+var cfg = window.SZ_CONFIG || {};
+
+/* ── Telegram WebApp: тема и открытие ссылок ──
+   Официальный скрипт (см. <head>) создаёт window.Telegram.WebApp и ВНЕ
+   Telegram — но там он фиктивный: platform='unknown', postEvent уходит
+   в никуда. Настоящий клиент всегда помечает мини-апп параметрами
+   tgWebApp* в адресе страницы. Поэтому мостом считаем только настоящий
+   контекст мини-аппа — иначе фиктивные вызовы в обычном браузере
+   затмят рабочие обходные пути ниже. */
+var rawTg = null, tg = null, bridgePending = true, bridgeTimer = null;
+function adoptBridge(){
+  rawTg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  if (!rawTg) return false;   /* скрипт ещё едет — остаёмся в режиме ожидания */
+  var realBridge = (rawTg.platform && rawTg.platform !== 'unknown') ||
+                   (rawTg.initData && String(rawTg.initData).length > 0) ||
+                   /[?&#]tgWebApp/.test(window.location.href);
+  if (!realBridge){
+    bridgePending = false;   /* фиктивный — окончательно */
+    diagNote('фиктивный WebApp (вне Telegram) — мост игнорирую');
+    return false;
+  }
+  tg = rawTg; bridgePending = false;
+  try { tg.ready(); tg.expand(); } catch(e){}
+  themeApply();
+  headerColorApply();
+  wireTgBack();   /* кнопка «Назад» ставится на старте — при позднем приходе моста ставим снова */
+  if (tg.onEvent) { try { tg.onEvent('themeChanged', function(){ themeApply(); headerColorApply(); }); } catch(e){} }
+  var late = document.getElementById('tgBanner');
+  if (late && late.parentNode) late.parentNode.removeChild(late);
+  diagNote('мост подключён (async): platform=' + (tg.platform || '?') + ' · ver=' + (tg.version || '?'));
+  return true;
+}
+adoptBridge();
+if (bridgePending && !rawTg){
+  var settleBridge = function(){
+    if (settleBridge.done) return;   /* финал фиксируется ровно один раз */
+    settleBridge.done = true;
+    bridgePending = false;
+    clearTimeout(bridgeTimer);
+    if (!tg && !rawTg) diagNote('мост не доехал (ошибка/таймаут) — открываю как обычная страница');
+    maybeBridgeBanner();
+  };
+  var bridgeArrive = function(){
+    clearTimeout(bridgeTimer);
+    if (!tg) adoptBridge();
+    settleBridge();
+  };
+  var bridgeEl = document.querySelector('script[src*="telegram-web-app.js"]');
+  if (bridgeEl){
+    bridgeEl.addEventListener('load', bridgeArrive);
+    bridgeEl.addEventListener('error', settleBridge);
+  } else { settleBridge(); }
+  bridgeTimer = setTimeout(settleBridge, 3000);   /* скрипт завис: статус окончательный */
+}
+
+/* iOS Safari вешает :active только при обработчике touchstart */
+document.addEventListener('touchstart', function(){}, {passive:true});
+
+/* ── тактильная отдача: HapticFeedback есть в мобильном Telegram;
+   в обычном браузере и на десктопе вызовы молча игнорируются ── */
+function haptic(style){
+  if (tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred) {
+    try { tg.HapticFeedback.impactOccurred(style); } catch(e){}
+  }
+}
+function hapticSelect(){
+  if (tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged) {
+    try { tg.HapticFeedback.selectionChanged(); } catch(e){}
+  }
+}
+function hapticNotify(type){
+  if (tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred) {
+    try { tg.HapticFeedback.notificationOccurred(type); } catch(e){}
+  }
+}
+
+/* ── нативная кнопка «Назад» Telegram: дублирует внутреннюю кнопку «← …» ── */
+var tgBackWired = false;
+function wireTgBack(){
+  if (!tg || !tg.BackButton || tgBackWired) return;
+  tgBackWired = true;
+  try {
+    tg.onEvent('backButtonClicked', function(){
+      var b = document.getElementById('backBtn');
+      if (b && b.style.display !== 'none') b.click();
+    });
+  } catch(e){}
+}
+function updateTgBack(){
+  if (!tg || !tg.BackButton || !tgBackWired) return;
+  var b = document.getElementById('backBtn');
+  var need = !!(b && b.style.display === 'block');
+  try { if (need) tg.BackButton.show(); else tg.BackButton.hide(); } catch(e){}
+}
+
+/* ── тост + копирование ссылки (кнопка «Поделиться» в шапке) ── */
+var toastTimer = null;
+function toast(msg){
+  var t = document.getElementById('toast');
+  if (!t){
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));'
+      + 'transform:translateX(-50%) translateY(8px);background:rgba(25,20,10,.88);color:#fff;'
+      + 'font-size:13px;font-weight:600;padding:9px 16px;border-radius:999px;'
+      + 'opacity:0;transition:opacity .18s ease, transform .18s ease;'
+      + 'pointer-events:none;z-index:50;max-width:86%;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(8px)';
+  }, 1900);
+}
+function legacyCopy(text){
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch(e){ return false; }
+}
+function copyText(text, done){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(
+      function(){ done(true); },
+      function(){ done(legacyCopy(text)); }
+    );
+  } else { done(legacyCopy(text)); }
+}
+
+function themeApply(){
+  var p = (tg && tg.themeParams) || {};
+  var dark = (tg && (p.bg_color ? isDark(p.bg_color) : (window.matchMedia('(prefers-color-scheme: dark)').matches)));
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  function isDark(hex){
+    if (!hex) return false;
+    var h = hex.replace('#','');
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var r = parseInt(h.substr(0,2),16), g = parseInt(h.substr(2,2),16), b = parseInt(h.substr(4,2),16);
+    return (0.299*r + 0.587*g + 0.114*b) < 128;
+  }
+}
+/* шапка Telegram и фон под контентом окрашиваются в тему приложения;
+   meta theme-color — то же для обычного браузера */
+function headerColorApply(){
+  var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  var m = document.querySelector('meta[name="theme-color"]');
+  if (m && bg) m.setAttribute('content', bg);
+  if (tg && tg.setHeaderColor) { try { tg.setHeaderColor(bg); } catch(e){ try { tg.setHeaderColor('bg_color'); } catch(e2){} } }
+  if (tg && tg.setBackgroundColor) { try { tg.setBackgroundColor(bg); } catch(e){} }
+}
+if (!tg) { themeApply(); headerColorApply(); }   /* без моста тема по системной настройке; с мостом применил adoptBridge */
+
+/* iOS/iPadOS: переходы через target="_blank" и window.open во встроенном
+   браузере Telegram на iPhone блокируются молча — надёжные пути только
+   официальный API мини-аппа или навигация в той же вкладке. */
+var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); /* iPadOS 13+ маскируется под Mac */
+
+/* ── самодиагностика (Task 120: в футере только строки продукта —
+   линия скрыта, видна при ?diag=1, каждая заметка идёт в консоль):
+   записывает среду запуска и то, какая ветка открытия сработала ── */
+var diagEl = null, diagLog = [];
+function diagInit(){
+  diagEl = document.createElement('div');
+  diagEl.className = 'lic'; diagEl.id = 'diag';
+  /* Task 120 (директива босса 14.9): в футере только строки продукта —
+     линия самодиагностики скрыта; видна при ?diag=1, заметки всегда
+     дублируются в консоль (console.log) */
+  diagEl.style.display = /[?&]diag=/.test(location.search) ? '' : 'none';
+  var f = document.querySelector('footer');
+  if (f) f.appendChild(diagEl);
+  diagNote('старт: tg=' + (tg
+    ? 'да · platform=' + (tg.platform || '?') + ' · ver=' + (tg.version || '?')
+    : (rawTg ? 'НЕТ (фиктивный WebApp вне Telegram — игнорирую)'
+       : (bridgePending ? 'мост ещё грузится (async)…' : 'НЕТ — обычная страница, моста нет'))));
+}
+function diagNote(msg){
+  try { console.log('[oglavlenie] ' + msg); } catch(e){}
+  if (!diagEl) return;
+  var d = new Date(), z = function(x){ return ('0'+x).slice(-2); };
+  diagLog.push(z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds())+' '+msg);
+  if (diagLog.length > 4) diagLog = diagLog.slice(-4);
+  diagEl.textContent = 'диагностика: ' + diagLog.join(' | ');
+}
+
+/* ── без моста Telegram (открытие не как мини-апп): изнутри страницы мост
+   создать нельзя. Пугающую ошибку убрали (Task 114): веб-режим полноценно
+   открывает посты той же вкладкой, факт режима виден в футере-диагностике ── */
+function showBridgeBanner(){
+  if (tg || !document.querySelector) return;
+  if (document.getElementById('tgBanner')) return;   /* уже показан — не дублируем */
+  /* Task 114: пугающего баннера больше нет — веб-режим полноценно открывает
+     посты той же вкладкой (routeOpen); режим виден в диагностике футера */
+  diagNote('веб-режим: посты открываются той же вкладкой');
+}
+/* async-мост мог ещё не доехать — раньше времени пугать пользователя нельзя:
+   баннер показываем только когда статус моста окончательный */
+function maybeBridgeBanner(){
+  if (bridgePending) return;
+  if (!tg) showBridgeBanner();
+}
+
+/* ── ОТКРЫТИЕ ПОСТОВ — стратегия живого приложения (проверена на
+   iOS и Android, 2026-07):
+     Telegram Desktop → tg.openTelegramLink (открывает внутри Telegram)
+     Telegram Web     → window.open (новая вкладка браузера)
+     Мобильные        → tg.openTelegramLink: переход прямо в канал,
+                        мини-апп НЕ закрывается — Telegram сам показывает
+                        пост поверх приложения; возврат свайпом или «Назад».
+   Тихий случай (пост из того же канала, откуда открыт мини-апп):
+   переход происходит корректно, НО без видимой смены экрана. Лечим по
+   официальной документации: нативный уход приложения в фон фиксируем
+   через visibilitychange; если за 1.5 с не свернулся:
+     iOS  → WebApp.close(): пост уже открыт позади, close() его покажет
+            (openLink вне жеста пользователя Telegram молча отбрасывает,
+            а на iOS он ещё и открывает внешний Safari);
+     иные → tg.openLink(): встроенный браузер, видимый рабочий путь. */
+var TG_LINK_FALLBACK_MS = 1500;
+function openInTelegram(url){
+  var settled = false;
+  function onVisChange(){
+    if (document.hidden){
+      settled = true;
+      document.removeEventListener('visibilitychange', onVisChange);
+      diagNote('приложение свернулось — пост открыт, назад свайпом');
+    }
+  }
+  document.addEventListener('visibilitychange', onVisChange);
+  try { tg.openTelegramLink(url); diagNote('openTelegramLink отправлен'); }
+  catch(e){ diagNote('ошибка openTelegramLink: ' + (e && e.message ? e.message : '?')); }
+  setTimeout(function(){
+    document.removeEventListener('visibilitychange', onVisChange);
+    if (settled) return;
+    if (tg.platform === 'ios' && tg.close){
+      diagNote('не свернулся за 1.5 с → close() (пост уже открыт позади)');
+      try { tg.close(); } catch(e){}
+      /* последний шанс, если close клиентом не поддержан */
+      setTimeout(function(){
+        if (!settled && tg.openLink){
+          diagNote('close не сработал → openLink');
+          try { tg.openLink(url, {try_instant_view:false}); } catch(e){}
+        }
+      }, 800);
+    } else if (tg.openLink){
+      diagNote('не свернулся за 1.5 с → openLink');
+      try { tg.openLink(url, {try_instant_view:false}); } catch(e){}
+    }
+  }, TG_LINK_FALLBACK_MS);
+}
+function openUrl(url){
+  if (!url) return;
+  if (!tg && bridgePending){
+    /* мост ещё едет (async): коротко дождёмся, чтобы тап не ушёл в запасную
+       ветку раньше времени; если мост так и не приехал — прежние пути */
+    diagNote('мост ещё грузится — жду его до 1.2 с');
+    var t0 = Date.now();
+    (function again(){
+      if (tg){ diagNote('мост доехал — открываю штатно'); openUrl(url); return; }
+      if (!bridgePending || Date.now() - t0 > 1200){ routeOpen(url); return; }
+      setTimeout(again, 60);
+    })();
+    return;
+  }
+  routeOpen(url);
+}
+function routeOpen(url){
+  if (!url) return;
+  if (!tg){
+    /* вне мини-аппа (в т.ч. встроенный браузер Telegram из кнопки канала):
+       window.open блокируется молча — единственный надёжный путь везде —
+       навигация в той же вкладке: в Telegram откроет пост прямо в приложении,
+       в обычном браузере — страницу t.me с кнопкой «открыть в приложении» */
+    diagNote('нет моста → навигация той же вкладкой');
+    window.location.href = url;
+    return;
+  }
+  var plat = tg.platform || '';
+  /* Telegram Web (web/weba) — в новой вкладке браузера */
+  if (plat === 'web' || plat === 'weba') { window.open(url, '_blank'); return; }
+  /* нативные приложения (десктоп, macOS, iOS, Android) — прямо в
+     Telegram через openTelegramLink, без внешнего браузера */
+  var NATIVE_APP_PLATFORMS = {tdesktop:1, macos:1, ios:1, android:1, android_x:1};
+  var canUseTelegramLink = !!tg.openTelegramLink
+    && (!tg.isVersionAtLeast || tg.isVersionAtLeast('7.0'));
+  if (NATIVE_APP_PLATFORMS[plat] && canUseTelegramLink) { openInTelegram(url); return; }
+  /* неизвестная платформа или клиент старше Bot API 7.0 — старый добрый
+     openLink(): гарантированно видимый рабочий путь */
+  try { tg.openLink(url, {try_instant_view:false}); } catch(e){}
+}
+
+/* ── лицензия: sha256(licensee|salt) первые 16 hex = ключ ── */
+function hex(buf){
+  var out = '';
+  new Uint8Array(buf).forEach(function(b){ out += ('0'+b.toString(16)).slice(-2); });
+  return out;
+}
+function licenseValid(licensee, key){
+  if (!licensee || !key) return Promise.resolve(false);
+  var data = new TextEncoder().encode(String(licensee).trim().toLowerCase() + '|' + SALT);
+  if (!(window.crypto && crypto.subtle)) return Promise.resolve(false); // file:// — просто показываем баннер
+  return crypto.subtle.digest('SHA-256', data).then(function(d){
+    return ('SZ-' + hex(d).slice(0,16)).toUpperCase() === String(key).trim().toUpperCase();
+  });
+}
+
+/* ── утилиты ── */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function dayLabel(iso){
+  var d = new Date(iso + 'T00:00:00');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var yst = new Date(today.getTime() - 86400000);
+  var t = new Date(d.getTime());
+  if (t.getTime() === today.getTime()) return 'Сегодня';
+  if (t.getTime() === yst.getTime()) return 'Вчера';
+  var now = new Date();
+  var label = d.getDate() + ' ' + MONTHS[d.getMonth()];
+  if (d.getFullYear() !== now.getFullYear()) label += ' ' + d.getFullYear();
+  return label;
+}
+function normTag(s){ return String(s||'').replace(/^#/,'').toLowerCase(); }
+
+/* ── состояние приложения ── */
+var POSTS = [];        // все посты (новые сверху)
+var TAGS = [];         // [{tag, n}]
+var TOPICS = null;     // [{id,title,icon,tags[]}] из topics.json (может не быть)
+var view = 'feed';     // 'toc' | 'feed'
+var filterTopic = null;// id выбранной темы (режим тем)
+var filterMode = null; // универсальная группировка: 'months' | 'alpha' | 'kind'
+var tocGroup = null;   // выбранная группа внутри filterMode
+var filterTag = null;  // выбранный тег-фильтр (в виде «Лента»)
+var filterQ = '';      // поисковая строка
+var shown = PAGE_SIZE;
+
+function topicOf(p){
+  if (!TOPICS) return null;
+  var pt = (p.tags||[]).map(normTag);
+  for (var i = 0; i < TOPICS.length; i++){
+    var tt = TOPICS[i].tags || [];
+    for (var j = 0; j < tt.length; j++){
+      if (pt.indexOf(normTag(tt[j])) !== -1) return TOPICS[i].id;
+    }
+  }
+  return null;
+}
+
+/* ── универсальная группировка без тегов: месяцы / алфавит / тип постов ── */
+var MODES = [
+  {id:'months', icon:'📅', title:'По месяцам'},
+  {id:'alpha',  icon:'🔤', title:'По алфавиту'},
+  {id:'kind',   icon:'🎭', title:'По типу постов'}
+];
+var KIND_META = {
+  text:{icon:'📝', title:'Тексты'}, photo:{icon:'📷', title:'Фото'},
+  video:{icon:'🎬', title:'Видео'}, audio:{icon:'🎧', title:'Аудио'},
+  poll:{icon:'📊', title:'Опросы'}, file:{icon:'📎', title:'Файлы'},
+  sticker:{icon:'🎭', title:'Стикеры'}
+};
+function kindOf(p){
+  if (p.kind && KIND_META[p.kind]) return p.kind;
+  var t = p.title || '';
+  if (t.indexOf('📷') === 0) return 'photo';
+  if (t.indexOf('🎬') === 0) return 'video';
+  if (t.indexOf('🎧') === 0) return 'audio';
+  if (t.indexOf('📊') === 0) return 'poll';
+  if (t.indexOf('📎') === 0) return 'file';
+  return 'text';
+}
+function groupKey(p, mode){
+  var md = mode || filterMode;
+  if (md === 'months') return (p.date || '').slice(0,7);
+  if (md === 'alpha'){
+    var t = (p.title || '').replace(/^[^0-9a-zа-яё]+/i, '');
+    return (t.charAt(0) || '#').toUpperCase();
+  }
+  return kindOf(p);
+}
+function monthLabel(ym){
+  var m = parseInt(ym.slice(5,7), 10);
+  return (MONTHS_NOM[m-1] || ym) + ' ' + ym.slice(0,4);
+}
+function groupCards(mode){
+  var counts = {};
+  POSTS.forEach(function(p){
+    var k = groupKey(p, mode); if (!k) k = '#';
+    if (!counts[k]) counts[k] = {key:k, n:0};
+    counts[k].n++;
+  });
+  var arr = Object.keys(counts).map(function(k){ return counts[k]; });
+  if (mode === 'months') arr.sort(function(a,b){ return a.key < b.key ? 1 : -1; });
+  else if (mode === 'kind') arr.sort(function(a,b){ return b.n - a.n; });
+  else arr.sort(function(a,b){ return a.key > b.key ? 1 : (a.key < b.key ? -1 : 0); });
+  return arr;
+}
+function groupLabel(k){
+  if (filterMode === 'months') return monthLabel(k);
+  if (filterMode === 'kind') return (KIND_META[k] || {title:'Тексты'}).title;
+  return 'На «' + k + '»';
+}
+function groupIcon(k){
+  if (filterMode === 'months') return '📅';
+  if (filterMode === 'kind') return (KIND_META[k] || {icon:'📝'}).icon;
+  return k; // алфавит: буква сама — иконка
+}
+
+/* ── «По темам» (v56-ru): счётчик для карточки корня. Если темы из
+   topics.json покрывают посты — считаются карточки тем (+ «Разное»),
+   иначе — число тегов постов. ── */
+function topicCardCount(){
+  if (TOPICS){
+    var n = 0, covered = 0;
+    TOPICS.forEach(function(t){
+      var c = 0;
+      POSTS.forEach(function(p){ if (topicOf(p) === t.id) c++; });
+      if (c) n++;
+      covered += c;
+    });
+    if (covered > 0){
+      var misc = POSTS.length - covered, total = n + (misc > 0 ? 1 : 0);
+      return { n: total, word: pluralWord(total, ['тема','темы','тем']) };
+    }
+  }
+  return { n: TAGS.length, word: pluralWord(TAGS.length, ['тег','тега','тегов']) };
+}
+/* ── шапка из конфига ── */
+function applyConfig(){
+  var name = cfg.channel_name || 'Оглавление';
+  document.title = name;
+  document.getElementById('hName').textContent = name;
+  document.getElementById('hOpen').textContent = cfg.channel_button || 'Канал';
+  if (cfg.channel_url) {
+    var a = document.getElementById('hOpen');
+    a.href = cfg.channel_url;
+    a.addEventListener('click', function(ev){
+      haptic('light');
+      // мини-апп → openUrl: openTelegramLink, при тихом сбое iOS —
+      // видимый запасной путь через браузер (стратегия живого приложения);
+      // десктоп-браузер без моста → НЕ перехватываем: работает обычный href
+      if (tg || iOS) {
+        ev.preventDefault(); openUrl(cfg.channel_url);
+      }
+    });
+  } else { document.getElementById('hOpen').style.display = 'none'; }
+  if (cfg.header_emoji) document.getElementById('logo').textContent = cfg.header_emoji;
+  var lic = cfg.licensee ? ('экземпляр для: ' + cfg.licensee + (cfg.license_id ? ' · лицензия ' + cfg.license_id : '')) : '';
+  document.getElementById('licLine').textContent = lic;
+}
+   var refA = document.getElementById('refLine');
+   if (refA && cfg.ref_bot) {
+     refA.style.display = '';
+     refA.href = 'https://t.me/' + cfg.ref_bot + (cfg.ref_code ? ('?start=r' + cfg.ref_code) : '');
+     refA.textContent = '\u26a1 \u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u043e\u0442 \u041e\u0433\u043b\u0430\u0432\u043b\u0435\u043d\u0438\u0435';
+   }
+
+/* ── фильтрация и рендер ── */
+function pluralWord(n, forms){
+  var a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return forms[0];
+  if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return forms[1];
+  return forms[2];
+}
+function plural(n){ return pluralWord(n, ['пост','поста','постов']); }
+function filtered(){
+  var q = filterQ.trim().toLowerCase();
+  var inToc = view === 'toc' && !filterQ.trim();
+  return POSTS.filter(function(p){
+    if (inToc && filterTopic){
+      var t = topicOf(p) || '__misc';
+      if (t !== filterTopic) return false;
+    } else if (inToc && filterMode && tocGroup){
+      if (groupKey(p) !== tocGroup) return false;
+    } else if (filterTag && !(p.tags||[]).some(function(t){ return normTag(t) === filterTag; })) return false;
+    if (!q) return true;
+    var hay = ((p.title||'') + ' ' + (p.preview||'') + ' ' + (p.tags||[]).join(' ')).toLowerCase();
+    return hay.indexOf(q) !== -1;
+  });
+}
+function renderChips(){
+  var box = document.getElementById('chips');
+  box.innerHTML = '';
+  var chipAll = document.createElement('div');
+  chipAll.className = 'chip' + (filterTag ? '' : ' active');
+  chipAll.textContent = 'Все темы';
+  chipAll.onclick = function(){ hapticSelect(); filterTag = null; shown = PAGE_SIZE; render(); };
+  box.appendChild(chipAll);
+  TAGS.slice(0, 14).forEach(function(t){
+    var c = document.createElement('div');
+    c.className = 'chip' + (filterTag === normTag(t.tag) ? ' active' : '');
+    c.textContent = t.tag + ' · ' + t.n;
+    c.onclick = function(){
+      hapticSelect();
+      filterTag = (filterTag === normTag(t.tag)) ? null : normTag(t.tag);
+      shown = PAGE_SIZE; render();
+    };
+    box.appendChild(c);
+  });
+}
+/* ── вид «Оглавление»: темы либо универсальные разделы + возврат ── */
+function renderViews(){
+  var box = document.getElementById('views');
+  if (!POSTS.length){ box.style.display = 'none'; return; }
+  box.style.display = '';
+  document.getElementById('vToc').className = (view === 'toc') ? 'active' : '';
+  document.getElementById('vFeed').className = (view === 'feed') ? 'active' : '';
+}
+function showBack(label, onClick){
+  var b = document.getElementById('backBtn');
+  if (!b){
+    b = document.createElement('button');
+    b.id = 'backBtn'; b.className = 'back';
+    var list = document.getElementById('list');
+    list.parentNode.insertBefore(b, list);
+  }
+  b.textContent = label;
+  b.onclick = function(){ haptic('light'); onClick(); };
+  b.style.display = 'block';
+  updateTgBack();
+}
+function hideBack(){
+  var b = document.getElementById('backBtn');
+  if (b) b.style.display = 'none';
+  updateTgBack();
+}
+var TAG_ICONS = {
+  russia:'🇷🇺', россия:'🇷🇺', worldnews:'🌍', мировыеновости:'🌍',
+  conflict:'⚔️', конфликт:'⚔️', society:'🏙️', общество:'🏙️',
+  economy:'📈', экономика:'📈', politics:'🏛️', политика:'🏛️',
+  health:'🏥', здоровье:'🏥', science:'🔬', наука:'🔬',
+  energy:'⚡', энергетика:'⚡', sport:'⚽', спорт:'⚽',
+  technology:'💻', технологии:'💻', culture:'🎭', культура:'🎭',
+  family:'👨‍👩‍👧', семья:'👨‍👩‍👧', incident:'🚨', происшествия:'🚨'
+};
+function tagIcon(tag){
+  return TAG_ICONS[normTag(tag)] || '🏷️';
+}
+/* ── экран «По темам» (v54-ru): карточки тем из topics.json (если реально
+   покрывают посты) + каждый тег постов своей карточкой. Тап по карточке —
+   отфильтрованный список постов. ── */
+function renderTopicsScreen(){
+  showBack('← Оглавление', function(){ filterMode = null; filterTopic = null; filterTag = null; tocGroup = null; shown = PAGE_SIZE; render(); });
+  renderState(null);
+  var list = document.getElementById('list');
+  var html = '';
+  if (TOPICS){
+    var covered = 0, misc = 0;
+    POSTS.forEach(function(p){ if (topicOf(p)) covered++; else misc++; });
+    if (covered > 0){
+      html += '<div class="tgrid">';
+      TOPICS.forEach(function(t){
+        var n = 0;
+        POSTS.forEach(function(p){ if (topicOf(p) === t.id) n++; });
+        if (!n) return;
+        html += '<div class="tcard" data-topic="' + esc(t.id) + '">' +
+                  '<div class="t-ico">' + esc(t.icon || '🏷') + '</div>' +
+                  '<div class="t-title">' + esc(t.title || t.id) + '</div>' +
+                  '<div class="t-n">' + n + ' ' + plural(n) + '</div>' +
+                '</div>';
+      });
+      if (misc){
+        html += '<div class="tcard" data-topic="__misc">' +
+                  '<div class="t-ico">🗂</div>' +
+                  '<div class="t-title">Разное</div>' +
+                  '<div class="t-n">' + misc + ' ' + plural(misc) + '</div>' +
+                '</div>';
+      }
+      html += '</div>';
+    }
+  }
+  if (TAGS.length){
+    html += '<div class="slabel">Все темы</div><div class="tgrid">';
+    TAGS.forEach(function(t){
+      var nt = normTag(t.tag);
+      html += '<div class="tcard" data-ttag="' + esc(nt) + '">' +
+                '<div class="t-ico">' + esc(tagIcon(t.tag)) + '</div>' +
+                '<div class="t-title">' + esc(t.tag) + '</div>' +
+                '<div class="t-n">' + t.n + ' ' + plural(t.n) + '</div>' +
+              '</div>';
+    });
+    html += '</div>';
+  }
+  if (!html) return renderState('empty');
+  list.innerHTML = html;
+  list.style.display = '';
+  list.querySelectorAll('.tcard[data-topic]').forEach(function(el){
+    el.addEventListener('click', function(){
+      haptic('medium');
+      filterTopic = el.getAttribute('data-topic');
+      shown = PAGE_SIZE; render();
+      window.scrollTo(0, 0);
+    });
+  });
+  list.querySelectorAll('.tcard[data-ttag]').forEach(function(el){
+    el.addEventListener('click', function(){
+      haptic('medium');
+      filterTag = el.getAttribute('data-ttag');
+      shown = PAGE_SIZE; render();
+      window.scrollTo(0, 0);
+    });
+  });
+  var more = document.getElementById('moreBtn');
+  if (more) more.style.display = 'none';
+}
+function renderModeGrid(){
+  hideBack();
+  renderState(null);
+  var list = document.getElementById('list');
+  /* v54-ru: корень оглавления — ВСЕГДА четыре равные карточки:
+     три универсальные (месяцы/алфавит/типы) + «По темам» (темы и теги).
+     Карточки никогда не пропадают и не смешиваются с содержимым разделов. */
+  var html = '<div class="tgrid">';
+  MODES.forEach(function(m){
+    var gn = groupCards(m.id).length;
+    html += '<div class="tcard" data-mode="' + m.id + '">' +
+              '<div class="t-ico">' + m.icon + '</div>' +
+              '<div class="t-title">' + m.title + '</div>' +
+              '<div class="t-n">' + gn + ' ' + pluralWord(gn, ['раздел','раздела','разделов']) + '</div>' +
+            '</div>';
+  });
+  var tn = topicCardCount();
+  html += '<div class="tcard" data-mode="topics">' +
+            '<div class="t-ico">🏷</div>' +
+            '<div class="t-title">По темам</div>' +
+            '<div class="t-n">' + tn.n + ' ' + tn.word + '</div>' +
+          '</div>';
+  html += '</div>';
+  list.innerHTML = html;
+  list.style.display = '';
+  list.querySelectorAll('.tcard').forEach(function(el){
+    el.addEventListener('click', function(){
+      haptic('medium');
+      filterMode = el.getAttribute('data-mode');   // 'months' | 'alpha' | 'kind' | 'topics'
+      tocGroup = null; shown = PAGE_SIZE; render();
+      window.scrollTo(0, 0);
+    });
+  });
+  var more = document.getElementById('moreBtn');
+  if (more) more.style.display = 'none';
+}
+function renderGroupCards(){
+  showBack('← Оглавление',
+           function(){ filterMode = null; tocGroup = null; shown = PAGE_SIZE; render(); });
+  renderState(null);
+  var list = document.getElementById('list');
+  var cards = groupCards(filterMode);
+  var html = '<div class="tgrid">';
+  cards.forEach(function(c){
+    html += '<div class="tcard" data-group="' + esc(c.key) + '">' +
+              '<div class="t-ico">' + esc(groupIcon(c.key)) + '</div>' +
+              '<div class="t-title">' + esc(groupLabel(c.key)) + '</div>' +
+              '<div class="t-n">' + c.n + ' ' + plural(c.n) + '</div>' +
+            '</div>';
+  });
+  html += '</div>';
+  list.innerHTML = html;
+  list.style.display = '';
+  list.querySelectorAll('.tcard').forEach(function(el){
+    el.addEventListener('click', function(){
+      haptic('medium');
+      tocGroup = el.getAttribute('data-group');
+      shown = PAGE_SIZE; render();
+      window.scrollTo(0, 0);
+    });
+  });
+  var more = document.getElementById('moreBtn');
+  if (more) more.style.display = 'none';
+}
+function renderList(items){
+  var list = document.getElementById('list');
+  var html = '', lastDay = '', groupOpen = false;
+  items.slice(0, shown).forEach(function(p){
+    if (p.date !== lastDay){
+      if (groupOpen){ html += '</div>'; }
+      html += '<div class="day">' + esc(dayLabel(p.date)) + '</div><div class="group">';
+      lastDay = p.date; groupOpen = true;
+    }
+    var tags = (p.tags||[]).map(function(t){ return '<span class="c-tag">' + esc(t) + '</span>'; }).join('');
+    html += '<a class="card"' + (p.url ? ' href="' + esc(p.url) + '" target="_blank" rel="noopener"' : '') + '>' +
+              '<div class="c-top">' +
+                (p.time ? '<span class="c-time">' + esc(p.time) + '</span>' : '') +
+                '<span class="c-title">' + esc(p.title || 'Пост') + '</span>' +
+              '</div>' +
+              (p.preview ? '<div class="c-prev">' + esc(p.preview) + '</div>' : '') +
+              (tags ? '<div class="c-tags">' + tags + '</div>' : '') +
+            '</a>';
+  });
+  if (groupOpen) html += '</div>';
+  list.innerHTML = html;
+  list.querySelectorAll('a.card[href]').forEach(function(el){
+    el.addEventListener('click', function(ev){
+      if (ev.metaKey || ev.ctrlKey) return;   // ctrl/⌘+клик — новую вкладку открывает браузер
+      haptic('light');
+      // мини-апп → openUrl: переход внутрь Telegram, при тихом сбое iOS
+      // (мини-апп открыт из того же канала) — видимый запасной путь через
+      // браузер; десктоп-браузер без моста → НЕ перехватываем: работает
+      // настоящая ссылка
+      if (tg || iOS) {
+        ev.preventDefault();
+        /* мгновенная визуальная отдача, пока Telegram выполняет переход
+           (до 1.5 с) — тап не ощущается «мёртвым» (опыт живого приложения) */
+        el.classList.add('pressed');
+        setTimeout(function(){ el.classList.remove('pressed'); }, 300);
+        openUrl(el.getAttribute('href'));
+      }
+    });
+  });
+  var more = document.getElementById('moreBtn');
+  if (items.length > shown){
+    if (!more){
+      more = document.createElement('button');
+      more.id = 'moreBtn'; more.className = 'more';
+      more.onclick = function(){ haptic('light'); shown += PAGE_SIZE; render(); };
+      document.getElementById('list').after(more);
+    }
+    more.textContent = 'Показать ещё (' + (items.length - shown) + ')';
+    more.style.display = 'block';
+  } else if (more){ more.style.display = 'none'; }
+}
+function renderState(kind, extra){
+  var st = document.getElementById('state');
+  var list = document.getElementById('list');
+  var more = document.getElementById('moreBtn');
+  if (more) more.style.display = 'none';
+  if (!kind){ st.style.display = 'none'; list.style.display = ''; return; }
+  list.style.display = 'none';
+  st.style.display = 'block';
+  if (kind === 'empty')   st.innerHTML = '<div class="big">📭</div><div class="t">Пока пусто</div><div>Посты появятся здесь сразу после первой публикации или импорта.</div>';
+  if (kind === 'nomatch') st.innerHTML = '<div class="big">🔍</div><div class="t">Ничего не найдено</div><div>Попробуйте изменить запрос или выбрать другую тему.</div>';
+  if (kind === 'error'){
+    document.getElementById('chips').style.display = 'none';
+    st.innerHTML = '<div class="big">⚠️</div><div class="t">Не удалось загрузить оглавление</div><div>' + esc(extra||'') + '</div>'
+      + '<button type="button" class="more" id="retryBtn" style="max-width:220px;margin:18px auto 0">Повторить</button>';
+    var rb = document.getElementById('retryBtn');
+    if (rb) rb.onclick = function(){ haptic('light'); load(); loadTopics(); };
+  }
+}
+function render(){
+  var items = filtered();
+  var q = filterQ.trim();
+  var inToc = view === 'toc' && !q;
+  var sub = POSTS.length ? ('каталог постов · ' + POSTS.length + ' ' + plural(POSTS.length)) : 'каталог постов канала';
+  if (inToc && filterMode && filterMode !== 'topics' && !tocGroup){
+    var gn = groupCards().length;
+    sub = gn + ' ' + pluralWord(gn, ['раздел','раздела','разделов']);
+  } else if (inToc && filterMode === 'topics' && !filterTopic && !filterTag){
+    var tc = topicCardCount();
+    sub = tc.n + ' ' + tc.word;
+  }
+  document.getElementById('hSub').textContent = sub;
+  renderViews();
+  document.getElementById('chips').style.display = inToc ? 'none' : '';
+  if (!POSTS.length){ renderChips(); return renderState('empty'); }
+  if (inToc && !filterMode && !filterTopic && !tocGroup && !filterTag){ renderModeGrid(); return; }  // v54-ru корень: 4 карточки
+  if (inToc && filterMode === 'topics' && !filterTopic && !filterTag){ renderTopicsScreen(); return; }
+  if (inToc && filterMode && filterMode !== 'topics' && !tocGroup){ renderGroupCards(); return; }
+  if (inToc && filterTopic){
+    showBack('← По темам', function(){ filterTopic = null; shown = PAGE_SIZE; render(); });
+  } else if (inToc && filterMode && tocGroup){
+    showBack('← Разделы', function(){ tocGroup = null; shown = PAGE_SIZE; render(); });
+  } else if (inToc && filterTag){
+    showBack('← По темам', function(){ filterTag = null; shown = PAGE_SIZE; render(); });
+  } else { hideBack(); }
+  renderChips();
+  if (!items.length) return renderState('nomatch');
+  renderState(null);
+  renderList(items);
+  document.getElementById('list').style.display = '';
+}
+
+/* ── поиск ── */
+var qEl = document.getElementById('q'), clrEl = document.getElementById('clr');
+qEl.addEventListener('input', function(){
+  filterQ = qEl.value; shown = PAGE_SIZE;
+  clrEl.style.display = qEl.value ? 'block' : 'none';
+  render();
+});
+clrEl.addEventListener('click', function(){
+  haptic('light');
+  qEl.value = ''; filterQ = ''; clrEl.style.display = 'none'; shown = PAGE_SIZE; render(); qEl.focus();
+});
+
+/* ── переключатель вида: Оглавление / Лента ── */
+document.getElementById('vToc').addEventListener('click', function(){
+  hapticSelect();
+  view = 'toc'; filterTopic = null; filterTag = null; filterMode = null; tocGroup = null; shown = PAGE_SIZE; render();
+});
+document.getElementById('vFeed').addEventListener('click', function(){
+  hapticSelect();
+  view = 'feed'; filterTopic = null; filterTag = null; filterMode = null; tocGroup = null; shown = PAGE_SIZE; render();
+});
+
+/* ── загрузка данных ── */
+var RAW_TOPICS = null;    // содержимое topics.json (если есть)
+var POSTS_READY = false;  // posts.json загружен
+function tryApplyTopics(){
+  if (!RAW_TOPICS || !POSTS_READY) return;
+  var ts = (RAW_TOPICS && RAW_TOPICS.topics) || [];
+  TOPICS = ts.filter(function(t){ return t && t.id && (t.tags||[]).length; });
+  if (!TOPICS.length) TOPICS = null;
+  render();   // v56-ru: темы живут внутри карточки «По темам» — корень всегда одинаковый
+}
+function loadTopics(){
+  fetch('topics.json?v=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){ RAW_TOPICS = data; tryApplyTopics(); })
+    .catch(function(){ if (POSTS_READY) render(); });   // topics.json нет/недоступен — остаётся текущий вид
+}
+function boot(data){
+  var posts = Array.isArray(data) ? data : (data.posts || []);
+  POSTS = posts.map(function(p){
+    var d = String(p.date || '');
+    return {
+      date: d.slice(0,10), time: String(p.time || (d.length > 10 ? d.slice(11,16) : '')),
+      title: p.title || '', preview: p.preview || '',
+      tags: p.tags || [], kind: p.kind || '', url: p.url || ''
+    };
+  }).sort(function(a,b){
+    var ka = a.date + ' ' + a.time, kb = b.date + ' ' + b.time;
+    return ka < kb ? 1 : (ka > kb ? -1 : 0);
+  });
+  if (!POSTS_READY && cfg.default_view !== 'feed') view = 'toc';   // вид по умолчанию — только при первой загрузке
+  var counts = {};
+  POSTS.forEach(function(p){ (p.tags||[]).forEach(function(t){
+    var k = normTag(t); if (!k) return;
+    if (!counts[k]) counts[k] = {tag: t, n: 0};
+    counts[k].n++;
+  });});
+  TAGS = Object.keys(counts).map(function(k){ return counts[k]; })
+    .sort(function(a,b){ return b.n - a.n; });
+  POSTS_READY = true;
+  render();
+  tryApplyTopics();
+}
+
+/* ── загрузка данных: мгновенный старт из кэша + тихое обновление ──
+   posts.json после каждой успешной загрузки сохраняется в localStorage:
+   на медленной сети оглавление открывается мгновенно (сохранённая копия),
+   затем тихо обновляется; без сети показывается копия. */
+var CACHE_KEY = 'sz_posts_v1';
+function cacheRead(){
+  try {
+    var o = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    return (o && typeof o.raw === 'string') ? o : null;
+  } catch(e){ return null; }
+}
+function stampFresh(t){
+  if (!t) return;
+  var el = document.getElementById('fresh');
+  if (!el){
+    el = document.createElement('div');
+    el.className = 'lic'; el.id = 'fresh';
+    var f = document.querySelector('footer');
+    if (f) f.insertBefore(el, document.getElementById('licLine'));
+  }
+  var d = new Date(t), z = function(x){ return ('0' + x).slice(-2); };
+  el.textContent = 'данные обновлены: ' + z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+}
+function bootFromCache(){
+  var cached = cacheRead();
+  if (!cached) return null;
+  try {
+    var cd = JSON.parse(cached.raw);
+    var cn = Array.isArray(cd) ? cd.length : ((cd && cd.posts) ? cd.posts.length : 0);
+    if (cn) { boot(cd); stampFresh(cached.t); }   // пустой кэш не показываем — пусть решает сеть
+    return cached;
+  } catch(e){ return null; }
+}
+function load(){
+  var cached = bootFromCache();
+  fetch('posts.json?v=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(function(txt){
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({t: Date.now(), raw: txt})); } catch(e){}
+      if (cached && txt === cached.raw){ stampFresh(Date.now()); return; }   // данные не изменились
+      boot(JSON.parse(txt));
+      stampFresh(Date.now());
+    })
+    .catch(function(e){
+      if (!POSTS_READY) renderState('error', 'Файл posts.json недоступен или пуст. Проверьте настройку по гайду (' + e.message + ').');
+    });
+}
+
+/* ── старт ── */
+applyConfig();
+wireTgBack();
+diagInit();
+maybeBridgeBanner();
+
+/* кнопка «Поделиться»: копирует ссылку на этот мини-апп */
+document.getElementById('hShare').addEventListener('click', function(){
+  haptic('light');
+  var http = location.protocol === 'http:' || location.protocol === 'https:';
+  var url = http ? (location.origin + location.pathname) : (cfg.channel_url || location.href);
+  copyText(url, function(ok){
+    if (ok){ hapticNotify('success'); toast('Ссылка на оглавление скопирована'); }
+    else { hapticNotify('error'); toast('Не удалось скопировать ссылку'); }
+  });
+});
+
+licenseValid(cfg.licensee, cfg.license_key).then(function(ok){
+  if (!ok){
+    var b = document.getElementById('banner');
+    b.style.display = 'block';
+    b.textContent = 'Лицензионный ключ не подтверждён. Работает демонстрационный режим — впишите корректные данные в config.js или обратитесь к продавцу.';
+  }
+});
+load();
+loadTopics();
+})();
+</script>
+</body>
+</html>

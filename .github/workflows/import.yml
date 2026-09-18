@@ -1,0 +1,130 @@
+# ═══════════════════════════════════════════════════════════════
+# «Содержание» · импорт истории канала
+# Собирает оглавление из ВАШИХ постов. Два пути:
+#   1) в репо лежит import/result.json (экспорт Telegram Desktop) —
+#      конвертируем его (точный способ, видны все посты вплоть до первого);
+#   2) экспорта нет и канал публичный — автоимпорт из веб-превью
+#      https://t.me/s/<канал> (последние ~300 постов).
+# Запуск: Actions → «Импорт истории» → Run workflow (канал можно не вписывать —
+# подставится сам). КОНВЕЙЕР ХОДИТ САМ по расписанию (~каждые 15 минут):
+# новые посты канала долетают до оглавления без ваших действий. Когда новых
+# постов добавлены, ваш бот пришлёт вам уведомление (секрет OWNER_TG_ID).
+# Канал для прогона: поле запуска → секрет CHANNEL_USERNAME → docs/posts.json.
+# Установщик запускает этот конвейер автоматически (путь 2).
+# Гайд: раздел «Импорт истории канала».
+# ═══════════════════════════════════════════════════════════════
+name: Импорт истории
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel_username:
+        description: "Юзернейм канала без @ — можно оставить пустым"
+        required: false
+        default: ""
+      replace:
+        description: "Заменить оглавление (true) или дополнить (false)"
+        required: false
+        default: "false"
+  schedule:
+    # Те же ~15 минут, но слоты сдвинуты с круглых четвертей (13,28,43,58):
+    # слоты */15 — самые перегруженные на GitHub, там задержки до получаса.
+    - cron: "13,28,43,58 * * * *"
+
+# Ручной и расписочный прогоны не должны толкаться на одном коммите
+concurrency:
+  group: toc-import
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Канал для импорта
+        id: ch
+        run: |
+          CH="${{ inputs.channel_username }}"
+          if [ -z "$CH" ]; then CH="${{ secrets.CHANNEL_USERNAME }}"; fi
+          if [ -z "$CH" ] && [ -f docs/posts.json ]; then
+            CH=$(python3 -c "import json;d=json.load(open('docs/posts.json',encoding='utf-8'));u=(d.get('channel') or {}).get('url') or '';print(u.rstrip('/').rsplit('/',1)[-1].lstrip('@'))" 2>/dev/null || true)
+          fi
+          CH=$(echo "$CH" | sed 's#^https://t.me/##; s#^@##; s#/.*$##')
+          if [ -z "$CH" ]; then
+            echo "!! Канал не определён: впишите юзернейм канала в поле запуска"
+            echo "   (Run workflow) или задайте секрет CHANNEL_USERNAME."
+            exit 1
+          fi
+          echo "channel=$CH" >> "$GITHUB_OUTPUT"
+
+      - name: Какой путь импорта доступен
+        id: src
+        run: |
+          if [ -f import/result.json ]; then
+            echo "mode=export" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=web" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Конвертация экспорта в оглавление
+        if: ${{ steps.src.outputs.mode == 'export' }}
+        run: |
+          python pipeline/export_to_posts.py \
+            --input import/result.json \
+            --posts docs/posts.json \
+            --channel-username "${{ steps.ch.outputs.channel }}" \
+            ${{ inputs.replace == 'true' && '--replace' || '' }}
+
+      - name: Автоимпорт из публичного веб-превью канала
+        if: ${{ steps.src.outputs.mode == 'web' }}
+        run: |
+          python pipeline/import_public.py \
+            --channel "${{ steps.ch.outputs.channel }}" \
+            --posts docs/posts.json \
+            --limit 300 \
+            ${{ inputs.replace == 'true' && '--replace' || '' }}
+
+      - name: Коммит оглавления
+        run: |
+          git config user.name  "soderzhanie-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/posts.json
+          [ -f docs/import_meta.json ] && git add docs/import_meta.json || true
+          if git diff --cached --quiet; then
+            echo "Изменений нет — коммит не нужен"
+          else
+            MSG=$(python3 -c "import json;print(json.load(open('docs/import_meta.json',encoding='utf-8')).get('commit_message',''))" 2>/dev/null || true)
+            git commit -m "${MSG:-импорт: оглавление собрано из ваших постов} [skip ci]"
+            git push
+          fi
+
+      - name: Уведомление о новых постах
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          OWNER_TG_ID: ${{ secrets.OWNER_TG_ID }}
+        run: |
+          N=$(python3 -c "import json;d=json.load(open('docs/import_meta.json',encoding='utf-8'));print(int(d.get('added') or 0),int(d.get('removed') or 0))" 2>/dev/null || echo "0 0")
+          ADDED=$(echo $N | cut -d' ' -f1)
+          REMOVED=$(echo $N | cut -d' ' -f2)
+          echo "новых постов: $ADDED, удалённых убрано: $REMOVED"
+          CHANGED=1
+          if [ "$ADDED" -le 0 ] && [ "$REMOVED" -le 0 ]; then CHANGED=0; fi
+          if [ -z "$OWNER_TG_ID" ] || [ "$CHANGED" -eq 0 ]; then
+            echo "уведомление не нужно (нет секрета OWNER_TG_ID или изменений)"
+            exit 0
+          fi
+          TEXT="🔄 Оглавление обновлено: новых постов — ${ADDED}. Откройте «📖 Оглавление» — каталог уже актуальный."
+          if [ "$REMOVED" -gt 0 ]; then TEXT="${TEXT} Из оглавления убрано удалённых постов: ${REMOVED}."; fi
+          OUT=$(curl -s "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d chat_id="${OWNER_TG_ID}" \
+            --data-urlencode "text=${TEXT}") || true
+          echo "ответ Telegram: ${OUT:-нет ответа}"

@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════════════════
+# «Содержание» · кнопка «Оглавление» в канале
+# Публикует пост с кнопкой «Оглавление» и закрепляет его.
+# Кнопка — обычная url-кнопка (web_app-кнопки в каналах запрещены), ведёт на
+# ПРЯМУЮ ССЫЛКУ Mini App (app_link, t.me/<бот>/<имя> из шага /newapp):
+# оглавление открывается прямо в Telegram, как в живом демо (схема 11.9.2026).
+# Без app_link кнопка ведёт на сайт оглавления (pages_url) — страница
+# откроется во встроенном браузере. pages_url нужен всегда: это ещё и адрес
+# меню-кнопки бота.
+# Запуск: Actions → «Кнопка оглавления» → Run workflow → введите адрес Pages
+#         (https://ЛОГИН.github.io/РЕПО/) и, для кнопки-мини-аппа, прямую
+#         ссылку t.me/<бот>/<имя>.
+# Повторный запуск сам удалит наш старый кнопочный пост — дубли не плодятся.
+# Требует секреты: BOT_TOKEN, CHANNEL_USERNAME.
+# ═══════════════════════════════════════════════════════════════
+name: Кнопка оглавления
+
+on:
+  workflow_dispatch:
+    inputs:
+      pages_url:
+        description: "Адрес сайта оглавления (https://логин.github.io/репо/)"
+        required: true
+        default: ""
+      button_text:
+        description: "Надпись на кнопке"
+        required: false
+        default: "📖 Оглавление"
+      app_link:
+        description: "Прямая ссылка Mini App (https://t.me/бот/имя) — кнопка откроет оглавление прямо в Telegram"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Публикация и закрепление кнопки
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_USERNAME: ${{ secrets.CHANNEL_USERNAME }}
+        run: |
+          python pipeline/toc_button.py \
+            --url "${{ inputs.pages_url }}" \
+            --app-link "${{ inputs.app_link }}" \
+            --text "${{ inputs.button_text || '📖 Оглавление' }}"
