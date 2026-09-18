@@ -1,0 +1,11 @@
+{
+  "ts": "2026-09-18T21:21:24+03:00",
+  "channel": "Testovuj",
+  "fetched": 300,
+  "max_seen": 500,
+  "prev_max": 0,
+  "added": 300,
+  "removed": 0,
+  "total": 300,
+  "commit_message": "импорт: постов в оглавлении 300, новых +300 (старший id 500)"
+}
